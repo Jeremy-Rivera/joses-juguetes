@@ -1,20 +1,25 @@
 import {Suspense} from 'react';
 import {Await, NavLink} from 'react-router';
+import {getT} from '~/lib/translations';
 
 /**
  * @param {FooterProps}
  */
-export function Footer({footer: footerPromise, header, publicStoreDomain}) {
+export function Footer({footer: footerPromise, header, publicStoreDomain, language}) {
+  const t = getT(language);
   return (
     <Suspense>
       <Await resolve={footerPromise}>
         {(footer) => (
           <footer className="footer">
+            <div className="footer-brand">{t('brandName')}</div>
+            <p className="footer-tagline">{t('footerTagline')}</p>
             {footer?.menu && header.shop.primaryDomain?.url && (
               <FooterMenu
                 menu={footer.menu}
                 primaryDomainUrl={header.shop.primaryDomain.url}
                 publicStoreDomain={publicStoreDomain}
+                language={language}
               />
             )}
           </footer>
@@ -29,24 +34,26 @@ export function Footer({footer: footerPromise, header, publicStoreDomain}) {
  *   menu: FooterQuery['menu'];
  *   primaryDomainUrl: FooterProps['header']['shop']['primaryDomain']['url'];
  *   publicStoreDomain: string;
+ *   language?: string;
  * }}
  */
-function FooterMenu({menu, primaryDomainUrl, publicStoreDomain}) {
+function FooterMenu({menu, primaryDomainUrl, publicStoreDomain, language}) {
+  const t = getT(language);
   return (
     <nav className="footer-menu" role="navigation">
       {(menu || FALLBACK_FOOTER_MENU).items.map((item) => {
         if (!item.url) return null;
-        // if the url is internal, we strip the domain
         const url =
           item.url.includes('myshopify.com') ||
           item.url.includes(publicStoreDomain) ||
           item.url.includes(primaryDomainUrl)
             ? new URL(item.url).pathname
             : item.url;
+        const label = policyLabelFromPath(url, t) || item.title;
         const isExternal = !url.startsWith('/');
         return isExternal ? (
           <a href={url} key={item.id} rel="noopener noreferrer" target="_blank">
-            {item.title}
+            {label}
           </a>
         ) : (
           <NavLink
@@ -56,12 +63,20 @@ function FooterMenu({menu, primaryDomainUrl, publicStoreDomain}) {
             style={activeLinkStyle}
             to={url}
           >
-            {item.title}
+            {label}
           </NavLink>
         );
       })}
     </nav>
   );
+}
+
+function policyLabelFromPath(path, t) {
+  if (path.includes('privacy')) return t('privacyPolicy');
+  if (path.includes('refund')) return t('refundPolicy');
+  if (path.includes('shipping')) return t('shippingPolicy');
+  if (path.includes('terms')) return t('termsOfService');
+  return null;
 }
 
 const FALLBACK_FOOTER_MENU = {
@@ -115,7 +130,7 @@ const FALLBACK_FOOTER_MENU = {
 function activeLinkStyle({isActive, isPending}) {
   return {
     fontWeight: isActive ? 'bold' : undefined,
-    color: isPending ? 'grey' : 'white',
+    color: isPending ? 'grey' : undefined,
   };
 }
 
@@ -123,6 +138,7 @@ function activeLinkStyle({isActive, isPending}) {
  * @typedef {Object} FooterProps
  * @property {Promise<FooterQuery|null>} footer
  * @property {HeaderQuery} header
+ * @property {string} [language]
  * @property {string} publicStoreDomain
  */
 

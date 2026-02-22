@@ -1,5 +1,6 @@
 import {Await, Link} from 'react-router';
 import {Suspense, useId} from 'react';
+import {getT} from '~/lib/translations';
 import {Aside} from '~/components/Aside';
 import {Footer} from '~/components/Footer';
 import {Header, HeaderMenu} from '~/components/Header';
@@ -19,18 +20,20 @@ export function PageLayout({
   footer,
   header,
   isLoggedIn,
+  language,
   publicStoreDomain,
 }) {
   return (
     <Aside.Provider>
-      <CartAside cart={cart} />
-      <SearchAside />
-      <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} />
+      <CartAside cart={cart} language={language} />
+      <SearchAside language={language} />
+      <MobileMenuAside header={header} publicStoreDomain={publicStoreDomain} language={language} />
       {header && (
         <Header
           header={header}
           cart={cart}
           isLoggedIn={isLoggedIn}
+          language={language}
           publicStoreDomain={publicStoreDomain}
         />
       )}
@@ -38,6 +41,7 @@ export function PageLayout({
       <Footer
         footer={footer}
         header={header}
+        language={language}
         publicStoreDomain={publicStoreDomain}
       />
     </Aside.Provider>
@@ -45,11 +49,12 @@ export function PageLayout({
 }
 
 /**
- * @param {{cart: PageLayoutProps['cart']}}
+ * @param {{cart: PageLayoutProps['cart']; language?: string}}
  */
-function CartAside({cart}) {
+function CartAside({cart, language}) {
+  const t = getT(language);
   return (
-    <Aside type="cart" heading="CART">
+    <Aside type="cart" heading={t('navCart').toUpperCase()}>
       <Suspense fallback={<p>Loading cart ...</p>}>
         <Await resolve={cart}>
           {(cart) => {
@@ -61,10 +66,11 @@ function CartAside({cart}) {
   );
 }
 
-function SearchAside() {
+function SearchAside({language}) {
   const queriesDatalistId = useId();
+  const t = getT(language);
   return (
-    <Aside type="search" heading="SEARCH">
+    <Aside type="search" heading={t('navSearch').toUpperCase()}>
       <div className="predictive-search">
         <br />
         <SearchFormPredictive>
@@ -74,13 +80,13 @@ function SearchAside() {
                 name="q"
                 onChange={fetchResults}
                 onFocus={fetchResults}
-                placeholder="Search"
+                placeholder={t('searchPlaceholder')}
                 ref={inputRef}
                 type="search"
                 list={queriesDatalistId}
               />
               &nbsp;
-              <button onClick={goToSearch}>Search</button>
+              <button onClick={goToSearch}>{t('searchButton')}</button>
             </>
           )}
         </SearchFormPredictive>
@@ -129,7 +135,7 @@ function SearchAside() {
                     to={`${SEARCH_ENDPOINT}?q=${term.current}`}
                   >
                     <p>
-                      View all results for <q>{term.current}</q>
+                      {t('viewAllResults')} <q>{term.current}</q>
                       &nbsp; →
                     </p>
                   </Link>
@@ -149,7 +155,7 @@ function SearchAside() {
  *   publicStoreDomain: PageLayoutProps['publicStoreDomain'];
  * }}
  */
-function MobileMenuAside({header, publicStoreDomain}) {
+function MobileMenuAside({header, publicStoreDomain, language}) {
   return (
     header.menu &&
     header.shop.primaryDomain?.url && (
@@ -159,6 +165,8 @@ function MobileMenuAside({header, publicStoreDomain}) {
           viewport="mobile"
           primaryDomainUrl={header.shop.primaryDomain.url}
           publicStoreDomain={publicStoreDomain}
+          language={language}
+          useCollectorNav
         />
       </Aside>
     )
@@ -171,6 +179,7 @@ function MobileMenuAside({header, publicStoreDomain}) {
  * @property {Promise<FooterQuery|null>} footer
  * @property {HeaderQuery} header
  * @property {Promise<boolean>} isLoggedIn
+ * @property {string} [language]
  * @property {string} publicStoreDomain
  * @property {React.ReactNode} [children]
  */

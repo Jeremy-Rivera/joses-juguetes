@@ -1,13 +1,15 @@
-import {Await, useLoaderData, Link} from 'react-router';
+import {Await, useLoaderData, useRouteLoaderData, Link} from 'react-router';
 import {Suspense} from 'react';
 import {Image} from '@shopify/hydrogen';
 import {ProductItem} from '~/components/ProductItem';
+import {getT} from '~/lib/translations';
+import {COLLECTOR_CATEGORIES} from '~/lib/categories';
 
 /**
  * @type {Route.MetaFunction}
  */
 export const meta = () => {
-  return [{title: 'Hydrogen | Home'}];
+  return [{title: "Jose's Juguetes — Collectibles & Toys"}];
 };
 
 /**
@@ -30,12 +32,11 @@ export async function loader(args) {
  */
 async function loadCriticalData({context}) {
   const [{collections}] = await Promise.all([
-    context.storefront.query(FEATURED_COLLECTION_QUERY),
-    // Add other queries here, so that they are loaded in parallel
+    context.storefront.query(FEATURED_COLLECTIONS_QUERY),
   ]);
 
   return {
-    featuredCollection: collections.nodes[0],
+    featuredCollections: collections.nodes.slice(0, 3),
   };
 }
 
@@ -62,46 +63,97 @@ function loadDeferredData({context}) {
 export default function Homepage() {
   /** @type {LoaderReturnData} */
   const data = useLoaderData();
+  const rootData = useRouteLoaderData('root');
+  const language = rootData?.language;
+  const t = getT(language);
+
   return (
     <div className="home">
-      <FeaturedCollection collection={data.featuredCollection} />
-      <RecommendedProducts products={data.recommendedProducts} />
+      <section className="hero">
+        <h1>{t('heroHeadline')}</h1>
+        <p>{t('heroSubhead')}</p>
+        <Link className="hero-cta" to="/collections">
+          {t('heroCta')}
+        </Link>
+      </section>
+      <section className="shop-by-category">
+        <h2>{t('shopByCategory')}</h2>
+        <p className="shop-by-category-sub">{t('shopByCategorySub')}</p>
+        <div className="category-grid">
+          {COLLECTOR_CATEGORIES.map((cat) => (
+            <Link
+              key={cat.handle}
+              className="category-tile"
+              to={`/collections/${cat.handle}`}
+            >
+              {t(cat.key)}
+            </Link>
+          ))}
+          <Link to="/collections" className="category-tile category-tile-all">
+            {t('viewAllCollections')}
+          </Link>
+        </div>
+      </section>
+      <FeaturedCollections collections={data.featuredCollections} language={language} />
+      <RecommendedProducts products={data.recommendedProducts} language={language} />
     </div>
   );
 }
 
 /**
  * @param {{
- *   collection: FeaturedCollectionFragment;
+ *   collections: FeaturedCollectionFragment[];
+ *   language?: string;
  * }}
  */
-function FeaturedCollection({collection}) {
-  if (!collection) return null;
-  const image = collection?.image;
+function FeaturedCollections({collections, language}) {
+  const t = getT(language);
+  if (!collections?.length) return null;
   return (
-    <Link
-      className="featured-collection"
-      to={`/collections/${collection.handle}`}
-    >
-      {image && (
-        <div className="featured-collection-image">
-          <Image data={image} sizes="100vw" />
-        </div>
-      )}
-      <h1>{collection.title}</h1>
-    </Link>
+    <section className="featured-section">
+      <h2 className="section-heading">{t('featuredCollection')}</h2>
+      <div className="featured-collections-grid">
+        {collections.map((collection) => (
+          <Link
+            key={collection.id}
+            className="featured-collection-card"
+            to={`/collections/${collection.handle}`}
+          >
+            <div className="card-image">
+              {collection.image ? (
+                <Image
+                  data={collection.image}
+                  sizes="(min-width: 56em) 400px, (min-width: 36em) 50vw, 100vw"
+                  aspectRatio="4/3"
+                />
+              ) : (
+                <span className="card-placeholder">
+                  {collection.title.slice(0, 2).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="card-body">
+              <h3>{collection.title}</h3>
+              <span>Shop →</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
   );
 }
 
 /**
  * @param {{
  *   products: Promise<RecommendedProductsQuery | null>;
+ *   language?: string;
  * }}
  */
-function RecommendedProducts({products}) {
+function RecommendedProducts({products, language}) {
+  const t = getT(language);
   return (
     <div className="recommended-products">
-      <h2>Recommended Products</h2>
+      <h2 className="section-heading">{t('recommendedProducts')}</h2>
       <Suspense fallback={<div>Loading...</div>}>
         <Await resolve={products}>
           {(response) => (
@@ -120,7 +172,7 @@ function RecommendedProducts({products}) {
   );
 }
 
-const FEATURED_COLLECTION_QUERY = `#graphql
+const FEATURED_COLLECTIONS_QUERY = `#graphql
   fragment FeaturedCollection on Collection {
     id
     title
@@ -133,9 +185,9 @@ const FEATURED_COLLECTION_QUERY = `#graphql
     }
     handle
   }
-  query FeaturedCollection($country: CountryCode, $language: LanguageCode)
+  query FeaturedCollections($country: CountryCode, $language: LanguageCode)
     @inContext(country: $country, language: $language) {
-    collections(first: 1, sortKey: UPDATED_AT, reverse: true) {
+    collections(first: 6, sortKey: UPDATED_AT, reverse: true) {
       nodes {
         ...FeaturedCollection
       }
