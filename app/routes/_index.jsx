@@ -70,12 +70,36 @@ export default function Homepage() {
   return (
     <div className="home">
       <section className="hero">
+        <p className="hero-tagline">{t('brandTagline')}</p>
         <h1>{t('heroHeadline')}</h1>
-        <p>{t('heroSubhead')}</p>
-        <Link className="hero-cta" to="/collections">
-          {t('heroCta')}
-        </Link>
+        <p className="hero-sub">{t('heroSubhead')}</p>
+        <div className="hero-ctas">
+          <Link className="hero-cta hero-cta-primary" to="/collections">
+            {t('heroCta')}
+          </Link>
+          <Link className="hero-cta hero-cta-secondary" to="/collections">
+            {t('heroCtaSecondary')}
+          </Link>
+        </div>
       </section>
+
+      <div className="trust-bar">
+        <span>{t('trustFreeShipping')}</span>
+        <span>{t('trustEasyReturns')}</span>
+        <span>{t('trustSecureCheckout')}</span>
+      </div>
+
+      <section className="why-section">
+        <div className="why-card">
+          <h3>{t('whyCurated')}</h3>
+          <p>{t('whyCuratedDesc')}</p>
+        </div>
+        <div className="why-card">
+          <h3>{t('whyBidOrBuy')}</h3>
+          <p>{t('whyBidOrBuyDesc')}</p>
+        </div>
+      </section>
+
       <section className="shop-by-category">
         <h2>{t('shopByCategory')}</h2>
         <p className="shop-by-category-sub">{t('shopByCategorySub')}</p>
@@ -94,8 +118,18 @@ export default function Homepage() {
           </Link>
         </div>
       </section>
+
       <FeaturedCollections collections={data.featuredCollections} language={language} />
       <RecommendedProducts products={data.recommendedProducts} language={language} />
+
+      <section className="newsletter">
+        <h2>{t('newsletterHeadline')}</h2>
+        <p>{t('newsletterSub')}</p>
+        <form className="newsletter-form" onSubmit={(e) => e.preventDefault()}>
+          <input type="email" placeholder={t('newsletterPlaceholder')} aria-label="Email" />
+          <button type="submit">{t('newsletterCta')}</button>
+        </form>
+      </section>
     </div>
   );
 }
@@ -109,35 +143,88 @@ export default function Homepage() {
 function FeaturedCollections({collections, language}) {
   const t = getT(language);
   if (!collections?.length) return null;
+  const [first, ...rest] = collections;
+  const useMosaic = first && rest.length >= 2;
   return (
     <section className="featured-section">
-      <h2 className="section-heading">{t('featuredCollection')}</h2>
-      <div className="featured-collections-grid">
-        {collections.map((collection) => (
-          <Link
-            key={collection.id}
-            className="featured-collection-card"
-            to={`/collections/${collection.handle}`}
-          >
-            <div className="card-image">
-              {collection.image ? (
-                <Image
-                  data={collection.image}
-                  sizes="(min-width: 56em) 400px, (min-width: 36em) 50vw, 100vw"
-                  aspectRatio="4/3"
-                />
-              ) : (
-                <span className="card-placeholder">
-                  {collection.title.slice(0, 2).toUpperCase()}
-                </span>
-              )}
+      <div className="section-inner">
+        <h2 className="section-heading">{t('featuredCollection')}</h2>
+        {useMosaic ? (
+          <div className="featured-mosaic">
+            <div className="mosaic-main">
+              <Link className="featured-collection-card" to={`/collections/${first.handle}`}>
+                <div className="card-image">
+                  {first.image ? (
+                    <Image
+                      data={first.image}
+                      sizes="(min-width: 48em) 60vw, 100vw"
+                      aspectRatio="5/4"
+                    />
+                  ) : (
+                    <span className="card-placeholder">
+                      {first.title.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="card-body">
+                  <h3>{first.title}</h3>
+                  <span>Shop →</span>
+                </div>
+              </Link>
             </div>
-            <div className="card-body">
-              <h3>{collection.title}</h3>
-              <span>Shop →</span>
-            </div>
-          </Link>
-        ))}
+            {rest.slice(0, 2).map((collection) => (
+              <div key={collection.id} className="mosaic-side">
+                <Link className="featured-collection-card" to={`/collections/${collection.handle}`}>
+                  <div className="card-image">
+                    {collection.image ? (
+                      <Image
+                        data={collection.image}
+                        sizes="(min-width: 48em) 40vw, 100vw"
+                        aspectRatio="4/3"
+                      />
+                    ) : (
+                      <span className="card-placeholder">
+                        {collection.title.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <div className="card-body">
+                    <h3>{collection.title}</h3>
+                    <span>Shop →</span>
+                  </div>
+                </Link>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="featured-collections-grid">
+            {collections.map((collection) => (
+              <Link
+                key={collection.id}
+                className="featured-collection-card"
+                to={`/collections/${collection.handle}`}
+              >
+                <div className="card-image">
+                  {collection.image ? (
+                    <Image
+                      data={collection.image}
+                      sizes="(min-width: 56em) 400px, (min-width: 36em) 50vw, 100vw"
+                      aspectRatio="4/3"
+                    />
+                  ) : (
+                    <span className="card-placeholder">
+                      {collection.title.slice(0, 2).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="card-body">
+                  <h3>{collection.title}</h3>
+                  <span>Shop →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

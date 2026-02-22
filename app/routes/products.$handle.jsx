@@ -17,7 +17,7 @@ import {redirectIfHandleIsLocalized} from '~/lib/redirect';
  */
 export const meta = ({data}) => {
   return [
-    {title: `Hydrogen | ${data?.product.title ?? ''}`},
+    {title: data?.product.title ? `${data.product.title} — Jose's Juguetes` : "Jose's Juguetes"},
     {
       rel: 'canonical',
       href: `/products/${data?.product.handle}`,
