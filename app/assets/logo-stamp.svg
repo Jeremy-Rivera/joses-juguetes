@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="stampGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3d7350"/>
+      <stop offset="50%" stop-color="#2d5a3d"/>
+      <stop offset="100%" stop-color="#1e3d2a"/>
+    </linearGradient>
+    <filter id="stampShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#0d1a14" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+  <!-- Outer double ring (stamp edge) -->
+  <circle cx="60" cy="60" r="55" fill="none" stroke="#132a1f" stroke-width="3"/>
+  <circle cx="60" cy="60" r="50" fill="none" stroke="#1e3d2a" stroke-width="1.5"/>
+  <!-- Main stamp body -->
+  <circle cx="60" cy="60" r="46" fill="url(#stampGreen)" filter="url(#stampShadow)"/>
+  <!-- Inner ring -->
+  <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+  <!-- White text: J&J Co. -->
+  <text
+    x="60"
+    y="62"
+    text-anchor="middle"
+    fill="#ffffff"
+    font-family="system-ui, -apple-system, sans-serif"
+    font-size="20"
+    font-weight="800"
+    letter-spacing="0.08em"
+  >J&amp;J Co.</text>
+</svg>

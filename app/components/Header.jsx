@@ -4,6 +4,7 @@ import {useAnalytics, useOptimisticCart} from '@shopify/hydrogen';
 import {useAside} from '~/components/Aside';
 import {getT} from '~/lib/translations';
 import {COLLECTOR_CATEGORIES} from '~/lib/categories';
+import logoStamp from '~/assets/logo-stamp.svg';
 
 /**
  * @param {HeaderProps}
@@ -19,6 +20,7 @@ export function Header({header, isLoggedIn, cart, publicStoreDomain, language}) 
         className={({ isActive }) => `header-brand${isActive ? ' active' : ''}`}
         end
       >
+        <img src={logoStamp} alt="" className="header-logo-stamp" width="60" height="60" />
         <strong>{t('brandName')}</strong>
       </NavLink>
       <HeaderMenu

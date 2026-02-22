@@ -71,6 +71,9 @@ a:hover {
 }
 
 .header-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   font-weight: 700;
   font-size: 1.35rem;
   letter-spacing: -0.03em;
@@ -79,6 +82,13 @@ a:hover {
 
 .header-brand:hover {
   color: var(--green-700);
+}
+
+.header-logo-stamp {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  display: block;
 }
 
 .header-menu-desktop {
@@ -443,23 +453,64 @@ button.reset {
   justify-content: center;
   text-align: center;
   padding: 4rem 1.5rem 5rem;
-  background: linear-gradient(165deg, var(--green-900) 0%, #0d1a14 35%, var(--green-800) 70%, var(--green-700) 100%);
+  background: var(--green-900);
   color: var(--white);
   position: relative;
   overflow: hidden;
+}
+
+/* Animated moving gradient */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    120deg,
+    #132a1f 0%,
+    #0d1a14 18%,
+    #1e3d2a 38%,
+    #2d5a3d 55%,
+    #1e3d2a 72%,
+    #0d1a14 88%,
+    #132a1f 100%
+  );
+  background-size: 300% 100%;
+  animation: heroGradientMove 20s linear infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::after {
+    animation: none;
+    background-position: 0% 50%;
+  }
 }
 
 .hero::before {
   content: '';
   position: absolute;
   inset: 0;
+  z-index: 1;
   background: radial-gradient(ellipse 80% 50% at 50% 120%, rgba(107, 207, 127, 0.08) 0%, transparent 50%),
     url("data:image/svg+xml,%3Csvg width='48' height='48' viewBox='0 0 48 48' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M24 26v-2h-2v2h-2v2h2v2h2v-2h2v-2h-2zm0-24V0h-2v2h-2v2h2v2h2V4h2V2h-2zM8 26v-2H6v2H4v2h2v2h2v-2h2v-2H8zM8 4V2H6v2H4v2h2v2h2V6h2V4H8z'/%3E%3C/g%3E%3C/svg%3E");
   pointer-events: none;
 }
 
-.hero .hero-tagline {
+@keyframes heroGradientMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+.hero .hero-tagline,
+.hero h1,
+.hero .hero-sub,
+.hero .hero-ctas {
   position: relative;
+  z-index: 2;
+}
+
+.hero .hero-tagline {
   font-family: var(--font);
   font-size: 0.85rem;
   font-weight: 600;
@@ -470,7 +521,6 @@ button.reset {
 }
 
 .hero h1 {
-  position: relative;
   font-family: var(--font-display);
   font-size: clamp(2.5rem, 6vw, 4.25rem);
   font-weight: 800;
@@ -481,7 +531,6 @@ button.reset {
 }
 
 .hero .hero-sub {
-  position: relative;
   max-width: 32rem;
   margin: 0 auto 2rem;
   font-size: 1.125rem;
@@ -490,7 +539,6 @@ button.reset {
 }
 
 .hero-ctas {
-  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;

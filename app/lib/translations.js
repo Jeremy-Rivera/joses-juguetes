@@ -17,7 +17,7 @@ export const translations = {
     navStarWars: 'Star Wars',
     navTradingCards: 'Trading Cards',
     navPopFigures: 'POP! Figures',
-    navActionFigures: 'Action Figures',
+    navActionFigures: 'Marvel',
     navHotWheels: 'Hot Wheels',
     navBlog: 'Blog',
     navPolicies: 'Policies',
